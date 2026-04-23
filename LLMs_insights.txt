@@ -1,0 +1,15 @@
+AI Hackaton 23-Apr-2026 LLMs insights
+
+- LLM 01, 02, 03: le risposte non sono state all'altezza delle nostre aspettative dal punto di vista del codice,
+ma piuttosto chiare per ottenere spiegazioni generali sull'outline del progetto e per spiegazioni sul design del frontend e
+sull'architettura: tempo di generazione delle risposte molto ridotto, in linea con le risposte rassicuranti che darebbe un
+modello di ChatGPT. Utile per avere un'overview del progetto, chiarificazioni generali, per generare eventuale documentation,
+e uno scheletro di base del codice, quindi velocizza molto il lavoro, ma sicuramente non sostituisce il developer.
+- LLM 04:
+- LLM 05: risposte ci mettono molto più tempo ad essere generate, ma sono dettagliate e più precise dal punto di vista del codice,
+quanto meno per linguaggi di programmazione e framework più usati (e.g. Python) oppure per HTML come markup language; il modello,
+in linea con le risposte di un modello di Claude, semplifica significativamente il lavoro di un developer dal punto di vista del
+codice, dando il codice quasi già pronto. E' sempre necessaria supervisione e per cambiamenti strutturali bisogna interagire un
+po' con il modello, ma velocizza al punto da quasi trasformare il lavoro del developer a reviewer del codice generato e prompt
+engineer, senza dover scrivere molto codice.
+- LLM 06, 07:
