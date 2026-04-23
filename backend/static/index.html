@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doodle Clone - Login</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── Cards ─────────────────────────────────────── */
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .card h1 {
+            font-size: 24px;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .card p.subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        /* ── Google button container ───────────────────── */
+
+        #g_id_signin {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        /* ── Divider ───────────────────────────────────── */
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider::before { margin-right: 12px; }
+        .divider::after  { margin-left: 12px; }
+
+        /* ── User profile (shown after login) ──────────── */
+
+        .profile {
+            display: none;
+            text-align: center;
+        }
+
+        .profile.visible {
+            display: block;
+        }
+
+        .profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 16px;
+            border: 3px solid #e0e0e0;
+        }
+
+        .profile h2 {
+            font-size: 20px;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .profile .email {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* ── Status / token display ────────────────────── */
+
+        .status {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            word-break: break-all;
+            text-align: left;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+
+        /* ── Buttons ───────────────────────────────────── */
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin: 4px;
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1557b0;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #bb2d3b;
+        }
+
+        .btn-secondary {
+            background: #f0f2f5;
+            color: #1a1a1a;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e4e6e9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ── Quick-test section ────────────────────────── */
+
+        .test-section {
+            display: none;
+            margin-top: 24px;
+            text-align: left;
+        }
+
+        .test-section.visible {
+            display: block;
+        }
+
+        .test-section h3 {
+            font-size: 16px;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .test-section .btn {
+            display: block;
+            width: 100%;
+            margin: 6px 0;
+            text-align: center;
+        }
+
+        .response-box {
+            margin-top: 12px;
+            padding: 12px;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: "SF Mono", "Fira Code", monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            display: none;
+        }
+
+        .response-box.visible {
+            display: block;
+        }
+
+        /* ── Loading spinner ───────────────────────────── */
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <!-- ─── Login View ────────────────────────────────── -->
+    <div id="login-view">
+        <h1>📅 Doodle Clone</h1>
+        <p class="subtitle">Sign in with your Google account to get started</p>
+
+        <div id="g_id_signin"></div>
+
+        <div id="login-status"></div>
+    </div>
+
+    <!-- ─── Profile View (after login) ────────────────── -->
+    <div id="profile-view" class="profile">
+        <img id="user-picture" src="" alt="Profile">
+        <h2 id="user-name"></h2>
+        <p class="email" id="user-email"></p>
+
+        <div class="status success" id="jwt-display">
+            <strong>JWT Token:</strong><br>
+            <span id="jwt-token"></span>
+        </div>
+
+        <div class="divider">QUICK API TESTS</div>
+
+        <div class="test-section visible">
+            <button class="btn btn-secondary" onclick="testEndpoint('/auth/me')">
+                GET /auth/me
+            </button>
+            <button class="btn btn-secondary" onclick="testEndpoint('/users/me/events')">
+                GET /users/me/events
+            </button>
+            <button class="btn btn-secondary" onclick="testEndpoint('/calendar/list')">
+                GET /calendar/list
+            </button>
+            <button class="btn btn-secondary" onclick="testEndpoint('/invitations/mine')">
+                GET /invitations/mine
+            </button>
+
+            <div id="response-box" class="response-box"></div>
+        </div>
+
+        <div style="margin-top: 24px;">
+            <button class="btn btn-danger" onclick="logout()">
+                Sign Out
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ══════════════════════════════════════════════════════
+    // CONFIGURATION – change these to match your setup
+    // ══════════════════════════════════════════════════════
+
+    const CONFIG = {
+        GOOGLE_CLIENT_ID: "213109404029-vu3rg85t7fsauj8lmi0d84a2s3i01ma8.apps.googleusercontent.com",
+        BACKEND_URL: "http://localhost:5000",
+    };
+
+    // ══════════════════════════════════════════════════════
+    // STATE
+    // ══════════════════════════════════════════════════════
+
+    let jwtToken = localStorage.getItem("jwt_token") || null;
+    let currentUser = JSON.parse(localStorage.getItem("user") || "null");
+
+    // ══════════════════════════════════════════════════════
+    // GOOGLE SIGN-IN SETUP
+    // ══════════════════════════════════════════════════════
+
+    window.onload = function () {
+        // If already logged in, show profile
+        if (jwtToken && currentUser) {
+            showProfile(currentUser);
+        }
+
+        // Initialise Google Identity Services
+        google.accounts.id.initialize({
+            client_id: CONFIG.GOOGLE_CLIENT_ID,
+            callback: handleGoogleResponse,
+            auto_select: false,
+        });
+
+        // Render the Google Sign-In button
+        google.accounts.id.renderButton(
+            document.getElementById("g_id_signin"),
+            {
+                theme: "outline",
+                size: "large",
+                width: 300,
+                text: "signin_with",
+                shape: "rectangular",
+            }
+        );
+    };
+
+    // ══════════════════════════════════════════════════════
+    // HANDLE GOOGLE RESPONSE
+    // ══════════════════════════════════════════════════════
+
+    async function handleGoogleResponse(response) {
+        const statusEl = document.getElementById("login-status");
+        statusEl.innerHTML = '<div class="status info"><span class="spinner"></span> Signing in...</div>';
+
+        try {
+            // Send Google ID token to our Flask backend
+            const res = await fetch(`${CONFIG.BACKEND_URL}/auth/google`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    token: response.credential,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || "Login failed");
+            }
+
+            // Store JWT and user info
+            jwtToken = data.token;
+            currentUser = data.user;
+            localStorage.setItem("jwt_token", jwtToken);
+            localStorage.setItem("user", JSON.stringify(currentUser));
+
+            statusEl.innerHTML = '<div class="status success">✅ Login successful!</div>';
+
+            // Show profile after short delay
+            setTimeout(() => showProfile(currentUser), 500);
+
+        } catch (err) {
+            statusEl.innerHTML = `<div class="status error">❌ ${err.message}</div>`;
+            console.error("Login error:", err);
+        }
+    }
+
+    // ══════════════════════════════════════════════════════
+    // SHOW / HIDE VIEWS
+    // ══════════════════════════════════════════════════════
+
+    function showProfile(user) {
+        document.getElementById("login-view").style.display = "none";
+
+        const profileView = document.getElementById("profile-view");
+        profileView.classList.add("visible");
+
+        document.getElementById("user-picture").src = user.picture || "https://via.placeholder.com/80";
+        document.getElementById("user-name").textContent = user.name;
+        document.getElementById("user-email").textContent = user.email;
+        document.getElementById("jwt-token").textContent = jwtToken;
+    }
+
+    function showLogin() {
+        document.getElementById("login-view").style.display = "block";
+        document.getElementById("login-status").innerHTML = "";
+
+        const profileView = document.getElementById("profile-view");
+        profileView.classList.remove("visible");
+    }
+
+    // ══════════════════════════════════════════════════════
+    // LOGOUT
+    // ══════════════════════════════════════════════════════
+
+    function logout() {
+        jwtToken = null;
+        currentUser = null;
+        localStorage.removeItem("jwt_token");
+        localStorage.removeItem("user");
+
+        // Revoke Google session
+        google.accounts.id.disableAutoSelect();
+
+        showLogin();
+    }
+
+    // ══════════════════════════════════════════════════════
+    // QUICK API TEST
+    // ══════════════════════════════════════════════════════
+
+    async function testEndpoint(path) {
+        const box = document.getElementById("response-box");
+        box.classList.add("visible");
+        box.textContent = `⏳ GET ${path} ...`;
+
+        try {
+            const res = await fetch(`<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>O</mi><mi>N</mi><mi>F</mi><mi>I</mi><mi>G</mi><mi mathvariant="normal">.</mi><mi>B</mi><mi>A</mi><mi>C</mi><mi>K</mi><mi>E</mi><mi>N</mi><msub><mi>D</mi><mi>U</mi></msub><mi>R</mi><mi>L</mi></mrow><annotation encoding="application/x-tex">{CONFIG.BACKEND_URL}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mord mathnormal">G</span><span class="mord">.</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">A</span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mord mathnormal">L</span></span></span></span></span>{path}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${jwtToken}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const data = await res.json();
+
+            box.textContent =
+                `<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi mathvariant="normal">.</mi><mi>s</mi><mi>t</mi><mi>a</mi><mi>t</mi><mi>u</mi><mi>s</mi></mrow><annotation encoding="application/x-tex">{res.status}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6151em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">es</span><span class="mord">.</span><span class="mord mathnormal">s</span><span class="mord mathnormal">t</span><span class="mord mathnormal">a</span><span class="mord mathnormal">t</span><span class="mord mathnormal">u</span><span class="mord mathnormal">s</span></span></span></span></span>{res.statusText}\n` +
+                `GET ${path}\n\n` +
+                JSON.stringify(data, null, 2);
+
+        } catch (err) {
+            box.textContent = `❌ Error: ${err.message}`;
+        }
+    }
+</script>
+
+</body>
+</html>
