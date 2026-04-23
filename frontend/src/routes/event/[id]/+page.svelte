@@ -147,7 +147,7 @@
         📊 Vedi Riepilogo
       </a>
       <button class="btn btn-secondary" onclick={resetVotes}>
-        ✏️ Modifica Preferenze
+        ✏️ Modifica Le Tue Preferenze
       </button>
     </div>
   </section>
@@ -246,32 +246,6 @@
     </div>
   </section>
 {/if}
-
-<!-- CONDIVIDI LINK -->
-<section class="share-section">
-  <div class="share-content">
-    <div class="share-icon">🔗</div>
-    <div class="share-text">
-      <h3>Condividi questo evento</h3>
-      <p>Invia il link ai partecipanti per raccogliere le loro preferenze</p>
-    </div>
-  </div>
-  <div class="share-input-group">
-    <input
-      type="text"
-      readonly
-      value="{typeof window !== 'undefined' ? window.location.origin : ''}/event/{page.params.id}"
-      onclick={(e) => e.currentTarget.select()}
-    />
-    <button class="btn-copy" onclick={copyLink}>
-      {#if linkCopied}
-        ✅ Copiato!
-      {:else}
-        📋 Copia
-      {/if}
-    </button>
-  </div>
-</section>
 
 <style>
   :root {
