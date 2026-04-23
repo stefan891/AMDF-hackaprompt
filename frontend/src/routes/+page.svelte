@@ -56,6 +56,7 @@ del tuo team in pochi click. Niente più catene di email infinite.
 <a href="/login" class="btn btn-primary">
 🚀 Inizia Ora
 </a>
+
 </div>
 </section>
 
@@ -107,6 +108,7 @@ del tuo team in pochi click. Niente più catene di email infinite.
 <div class="fake-slot">Mar 22 Gen · 14:00</div>
 <div class="fake-slot">Mer 23 Gen · 11:00</div>
 </div>
+<div class="fake-button">Crea Evento →</div>
 </div>
 </div>
 
