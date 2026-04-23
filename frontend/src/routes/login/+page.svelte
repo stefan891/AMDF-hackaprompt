@@ -1,24 +1,77 @@
-<!-- src/routes/login/+page.svelte -->
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+
+  // ← Replace with your actual Client ID
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID 
+    ?? 'YOUR_CLIENT_ID.apps.googleusercontent.com';
+
+  let message = 'Non sei ancora loggato.';
+
+  onMount(() => {
+    // If already logged in, redirect
+    if (localStorage.getItem('token')) {
+      goto('/');
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.onload = initGoogle;
+    document.head.appendChild(script);
+  });
+
+  function initGoogle() {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse,
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById('google-btn'),
+      {
+        theme: 'outline',
+        size: 'large',
+        text: 'signin_with',
+        width: 300,
+      }
+    );
+  }
+
+  async function handleCredentialResponse(response: any) {
+    message = '⏳ Verifica in corso...';
+
+    try {
+      const res = await fetch('/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: response.credential }),  // ← matches your backend
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Your backend returns { token, user }
+        localStorage.setItem('token', data.token);
+        message = `✅ Benvenuto, ${data.user.name}!`;
+        setTimeout(() => goto('/'), 1000);
+      } else {
+        message = `❌ ${data.error}`;
+      }
+    } catch (err) {
+      message = '❌ Errore di connessione al server.';
+    }
+  }
+</script>
+
 <h2>🔐 Login</h2>
 
 <div class="login-box">
   <p>Accedi con il tuo account Google per continuare.</p>
-
-  <button on:click={handleLogin}>
-    🔵 Accedi con Google
-  </button>
-
+  <div id="google-btn"></div>
   <p class="status">{message}</p>
 </div>
-
-<script lang="ts">
-  let message = 'Non sei ancora loggato.';
-
-  function handleLogin() {
-    // Per ora è solo una demo — simula il login
-    message = '✅ Login simulato! (In futuro qui ci sarà Google Sign-In)';
-  }
-</script>
 
 <style>
   .login-box {
@@ -31,19 +84,10 @@
     background: #fafafa;
   }
 
-  button {
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    background: #1976d2;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin: 1rem 0;
-  }
-
-  button:hover {
-    background: #1565c0;
+  #google-btn {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
   }
 
   .status {
